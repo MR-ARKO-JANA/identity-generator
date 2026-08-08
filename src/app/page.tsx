@@ -83,6 +83,11 @@ export default function Home() {
   const [panX, setPanX] = useState<number>(0);
   const [panY, setPanY] = useState<number>(0);
 
+  // Innovative Holographic Glitch State & Pointer Drag
+  const [isHoloActive, setIsHoloActive] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
   // Audio & Toast UI States
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -104,6 +109,31 @@ export default function Home() {
 
   const currentTheme = THEMES[theme];
   const computedClass = getBuilderClass(builderName, stackRole);
+
+  // Pointer & Touch Drag Handlers for Canvas Photo Positioning
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!imageSrc) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setPanX(Math.round(e.clientX - dragStart.x));
+    setPanY(Math.round(e.clientY - dragStart.y));
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (isDragging) {
+      setIsDragging(false);
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignore if pointer capture already released
+      }
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -291,6 +321,20 @@ export default function Home() {
       ctx.arc(x, dotY, 12, 0, Math.PI * 2);
       ctx.fill();
     });
+
+    // Holographic scanlines & glitch overlay
+    if (isHoloActive) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 255, 128, 0.05)";
+      for (let y = 0; y < size; y += 8) {
+        ctx.fillRect(0, y, size, 2);
+      }
+      ctx.fillStyle = "rgba(255, 0, 127, 0.14)";
+      ctx.fillRect(0, size * 0.4, size, 6);
+      ctx.fillStyle = "rgba(0, 255, 200, 0.14)";
+      ctx.fillRect(0, size * 0.72, size, 4);
+      ctx.restore();
+    }
   };
 
   // ─── BUILDER ID Renderer (1200 x 675 px - 16:9 Aspect Ratio) ────────────
@@ -349,49 +393,38 @@ export default function Home() {
     // Center-Weighted Object-Fit Cover with Zoom & Pan
     const baseScale = Math.max(photoBoxSize / img.width, photoBoxSize / img.height);
     const finalScale = baseScale * zoom;
-    const dx = photoX + (photoBoxSize - img.width * finalScale) / 2 + panX;
-    const dy = photoY + (photoBoxSize - img.height * finalScale) / 2 + panY;
+    const dx = photoX + photoBoxSize / 2 - (img.width * finalScale) / 2 + panX;
+    const dy = photoY + photoBoxSize / 2 - (img.height * finalScale) / 2 + panY;
 
     ctx.drawImage(img, dx, dy, img.width * finalScale, img.height * finalScale);
     ctx.restore();
 
-    // Photo Border Overlay
-    ctx.lineWidth = 6;
-    ctx.strokeStyle = t.primary;
+    // Photo Border Frame
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = t.border;
     ctx.strokeRect(photoX, photoY, photoBoxSize, photoBoxSize);
 
-    // Corner pin graphic on photo
-    ctx.fillStyle = t.secondary;
-    ctx.fillRect(photoX + 10, photoY + 10, 16, 16);
-
-    // 3. Right Side Details Section
+    // 3. Right Side Details Area
     const textLeft = 550;
 
-    // Holographic Sticker / Badge Seal
-    const stickerText = sticker.replace("_", " ");
-    ctx.fillStyle = t.secondary;
-    ctx.font = "bold 16px 'Space Mono', monospace";
-    ctx.fillRect(textLeft, 100, 180, 28);
-    ctx.strokeStyle = t.border;
-    ctx.strokeRect(textLeft, 100, 180, 28);
-    ctx.fillStyle = "#000000";
-    ctx.fillText(`// ${stickerText}`, textLeft + 12, 120);
-
-    // Builder Name
+    // Name Handle Label
     ctx.fillStyle = t.border;
-    ctx.font = "900 52px 'Playfair Display', serif";
+    ctx.font = "bold 44px 'Space Mono', monospace";
     ctx.textAlign = "left";
-    ctx.fillText((builderName || "ANON_BUILDER").toUpperCase(), textLeft, 175);
 
-    // Algorithmic Builder Class Tag
-    const classBadgeY = 205;
-    ctx.fillStyle = t.primary;
+    const nameText = (builderName || "ANON_BUILDER").toUpperCase();
+    const truncatedName = nameText.length > 16 ? nameText.substring(0, 16) + "..." : nameText;
+    ctx.fillText(truncatedName, textLeft, 160);
+
+    // Algorithmic Class Pill
+    const classBadgeY = 185;
     const classText = `CLASS: ${computedClass.toUpperCase()}`;
-    ctx.font = "bold 22px 'Space Mono', monospace";
+    ctx.font = "bold 18px 'Space Mono', monospace";
     const classMetrics = ctx.measureText(classText);
-    const classPillW = Math.min(classMetrics.width + 36, 450);
+    const classPillW = Math.min(classMetrics.width + 32, 580);
     const classPillH = 40;
 
+    ctx.fillStyle = t.primary;
     ctx.fillRect(textLeft, classBadgeY, classPillW, classPillH);
     ctx.strokeStyle = t.border;
     ctx.lineWidth = 3;
@@ -401,11 +434,11 @@ export default function Home() {
     ctx.fillText(classText, textLeft + 16, classBadgeY + 27);
 
     // Stack / Role Pill
-    const roleY = 260;
+    const roleY = 240;
     const roleText = `STACK: ${(stackRole || "FULLSTACK").toUpperCase()}`;
-    ctx.font = "bold 20px 'Space Mono', monospace";
+    ctx.font = "bold 18px 'Space Mono', monospace";
     const roleMetrics = ctx.measureText(roleText);
-    const rolePillW = Math.min(roleMetrics.width + 30, 450);
+    const rolePillW = Math.min(roleMetrics.width + 32, 580);
     const rolePillH = 36;
 
     ctx.fillStyle = t.secondary;
@@ -415,7 +448,7 @@ export default function Home() {
     ctx.strokeRect(textLeft, roleY, rolePillW, rolePillH);
 
     ctx.fillStyle = t.border;
-    ctx.fillText(roleText, textLeft + 14, roleY + 24);
+    ctx.fillText(roleText, textLeft + 16, roleY + 25);
 
     // Bio / Quote Line
     ctx.fillStyle = t.border;
@@ -423,8 +456,8 @@ export default function Home() {
 
     const bioText = `"${bio || "Less Noise. More Signal."}"`;
     let currentLine = "";
-    let lineY = 330;
-    const maxBioWidth = 460;
+    let lineY = 320;
+    const maxBioWidth = 580;
     const bioLineHeight = 32;
 
     const words = bioText.split(" ");
@@ -467,6 +500,57 @@ export default function Home() {
     ctx.fillRect(W - 60, H - 55, 20, 55);
     ctx.fillStyle = t.secondary;
     ctx.fillRect(W - 35, H - 55, 20, 55);
+
+    // 6. Sticker Badge Stamp
+    const stickerTextMap: Record<string, string> = {
+      SOLANA_DEV: "SOLANA // HIGH SPEED",
+      AI_ARCHITECT: "AI AGENT // ARCHITECT",
+      ZK_PROOF: "ZK PROOF // VERIFIED",
+      HH_GOA_VIP: "HH GOA // VIP BUILDER",
+    };
+
+    const badgeLabel = stickerTextMap[sticker] || "SOLANA // HIGH SPEED";
+    ctx.font = "bold 13px 'Space Mono', monospace";
+    ctx.textAlign = "left";
+    const badgeW = ctx.measureText(badgeLabel).width + 24;
+    const badgeX = 50 + 460 - badgeW - 12;
+    const badgeY = 110 + 460 - 45;
+
+    ctx.fillStyle = t.primary;
+    ctx.fillRect(badgeX, badgeY, badgeW, 30);
+    ctx.strokeStyle = t.border;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(badgeX, badgeY, badgeW, 30);
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(badgeLabel, badgeX + 12, badgeY + 20);
+
+    // 7. Cryptographic Verification Hash
+    const hashSeed = `${builderName}:${stackRole}:${theme}`;
+    let hashVal = 0;
+    for (let i = 0; i < hashSeed.length; i++) {
+      hashVal = (hashVal << 5) - hashVal + hashSeed.charCodeAt(i);
+      hashVal |= 0;
+    }
+    const hashHex = `0x${Math.abs(hashVal).toString(16).padStart(8, "0").toUpperCase()}`;
+
+    ctx.fillStyle = t.border;
+    ctx.font = "bold 11px 'Space Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillText(`VERIFY_HASH: ${hashHex}`, 50, 110 + 460 + 24);
+
+    // 8. Holographic scanlines & glitch overlay
+    if (isHoloActive) {
+      ctx.save();
+      ctx.fillStyle = "rgba(0, 255, 128, 0.05)";
+      for (let y = 0; y < H; y += 6) {
+        ctx.fillRect(0, y, W, 2);
+      }
+      ctx.fillStyle = "rgba(255, 0, 127, 0.14)";
+      ctx.fillRect(0, H * 0.32, W, 5);
+      ctx.fillStyle = "rgba(0, 255, 200, 0.14)";
+      ctx.fillRect(0, H * 0.68, W, 4);
+      ctx.restore();
+    }
   };
 
   useEffect(() => {
@@ -770,7 +854,24 @@ export default function Home() {
               {/* Photo Filter & Zoom/Pan Adjustment Panel */}
               {imageSrc && (
                 <div style={{ borderColor: currentTheme.border }} className="bg-white p-4 border-2 shadow-[4px_4px_0_0_#FFCC00] flex flex-col gap-3 font-mono text-xs">
-                  <div className="font-bold uppercase border-b pb-1">PHOTO ADJUSTMENTS & FILTERS //</div>
+                  <div className="flex justify-between items-center border-b pb-1">
+                    <span className="font-bold uppercase">PHOTO ADJUSTMENTS & FILTERS //</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playSound("click", soundEnabled);
+                        setIsHoloActive(!isHoloActive);
+                      }}
+                      style={{
+                        backgroundColor: isHoloActive ? currentTheme.primary : currentTheme.surface,
+                        color: isHoloActive ? "#FFFFFF" : currentTheme.border,
+                        borderColor: currentTheme.border,
+                      }}
+                      className="border-2 px-2 py-0.5 font-bold uppercase transition-colors text-[10px]"
+                    >
+                      {isHoloActive ? "HOLO_GLITCH: ON" : "HOLO_GLITCH: OFF"}
+                    </button>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -860,6 +961,10 @@ export default function Home() {
                         />
                       </div>
                     </div>
+
+                    <div style={{ color: currentTheme.border }} className="text-[10px] opacity-75 font-bold text-right pt-1">
+                      HUD: X:{panX}px | Y:{panY}px | Z:{zoom.toFixed(1)}x
+                    </div>
                   </div>
                 </div>
               )}
@@ -925,10 +1030,18 @@ export default function Home() {
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               </div>
 
-              <div style={{ borderColor: currentTheme.border }} className="bg-white border-2 p-3 flex items-center justify-center shadow-[inset_4px_4px_0_0_rgba(0,0,0,0.1)] w-full">
-                <div className="w-full relative shadow-[6px_6px_0_0_#FF007F]">
+              <div style={{ borderColor: currentTheme.border }} className="bg-white border-2 p-3 flex flex-col items-center justify-center shadow-[inset_4px_4px_0_0_rgba(0,0,0,0.1)] w-full">
+                <div
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                  className={`w-full relative shadow-[6px_6px_0_0_#FF007F] touch-none ${
+                    imageSrc ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""
+                  }`}
+                >
                   {imageSrc ? (
-                    <canvas ref={canvasRef} style={{ borderColor: currentTheme.border }} className="w-full h-auto object-contain bg-gray-100 border" />
+                    <canvas ref={canvasRef} style={{ borderColor: currentTheme.border }} className="w-full h-auto object-contain bg-gray-100 border pointer-events-none" />
                   ) : (
                     <div style={{ backgroundColor: currentTheme.surface, borderColor: currentTheme.border, color: currentTheme.border }} className={`w-full border-2 border-dashed flex flex-col items-center justify-center font-[family-name:var(--font-space-mono)] font-bold text-center p-6 ${format === "PFP_FRAME" ? "aspect-square" : "aspect-[16/9]"}`}>
                       <svg className="w-8 h-8 mb-2 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -938,6 +1051,11 @@ export default function Home() {
                     </div>
                   )}
                 </div>
+                {imageSrc && (
+                  <div className="w-full text-center font-mono text-[10px] opacity-75 font-bold mt-2">
+                    💡 TOUCH / DRAG PHOTO DIRECTLY TO POSITION
+                  </div>
+                )}
               </div>
 
               {/* Utility Tools: Copy Link & Copy Markdown */}
