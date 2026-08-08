@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 
-const isGithubActions = process.env.GITHUB_ACTIONS || false;
 const repo = "identity-generator";
 
 const nextConfig: NextConfig = {
@@ -8,8 +7,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: isGithubActions ? `/${repo}` : "",
-  assetPrefix: isGithubActions ? `/${repo}/` : "",
+  basePath: `/${repo}`,
+  assetPrefix: `/${repo}/`,
 };
 
 export default nextConfig;
