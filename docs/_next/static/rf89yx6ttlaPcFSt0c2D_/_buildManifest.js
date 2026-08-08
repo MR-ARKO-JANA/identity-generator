@@ -1,7 +1,12 @@
 self.__BUILD_MANIFEST = {
   "__rewrites": {
     "afterFiles": [],
-    "beforeFiles": [],
+    "beforeFiles": [
+      {
+        "source": "/identity-generator//_next/:path+",
+        "destination": "/identity-generator/_next/:path+"
+      }
+    ],
     "fallback": []
   },
   "sortedPages": [
