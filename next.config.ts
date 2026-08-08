@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const isRender = process.env.RENDER === "true" || process.env.RENDER_SERVICE_ID !== undefined;
+const isDev = process.env.NODE_ENV === "development";
 const repo = "identity-generator";
 
 const nextConfig: NextConfig = {
@@ -23,6 +24,8 @@ const nextConfig: NextConfig = {
           ];
         },
       }
+    : isDev
+    ? {}
     : {
         basePath: `/${repo}`,
         assetPrefix: `/${repo}/`,
