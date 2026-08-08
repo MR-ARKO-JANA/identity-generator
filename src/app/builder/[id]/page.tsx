@@ -128,6 +128,7 @@ export default async function BuilderPage({ params }: Props) {
         </div>
 
         <div className="flex flex-col items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={badgeData.image_url}
             alt="Hacker House Goa 2026 Builder Identity"
