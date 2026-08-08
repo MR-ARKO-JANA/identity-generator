@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hacker House Goa 2026 — Identity Generator
 
-## Getting Started
+An interactive identity badge and PFP frame engine built for **Hacker House Goa 2026**. Designed for high-contrast brutalist aesthetics, custom canvas rendering, QR verification stamps, multi-theme customization, and client-side web worker offloading.
 
-First, run the development server:
+---
+
+## ⚡ Features
+
+- **PFP Frame (1:1) & Builder ID (16:9)**: Dynamic aspect ratios optimized for avatar social media frames and landscape developer badges.
+- **Real-Time Interactive Canvas**: Multi-theme palette engine (*HH Goa Cypherpunk*, *Goa Sunset*, *Matrix Terminal*, *Solana Multichain*).
+- **Image Adjustments**: Precision Zoom and Pan controls with touch-drag support for mobile viewports.
+- **Canvas Filters**: Live filters (*Cyberpunk*, *Monochrome*, *Warm Sepia*).
+- **Web Worker Offloading**: Asynchronous iOS HEIC / HEIF image conversion to keep the main UI thread responsive.
+- **Audio SFX Synthesizer**: Web Audio API sound effects for interactive user controls.
+- **QR Code Generator**: Algorithmic QR stamp embedded directly on generated identity cards.
+
+---
+
+## 🛠️ Getting Started
+
+### Prerequisites
+- Node.js 20+
+- npm / yarn / pnpm
+
+### Local Development
 
 ```bash
+# Install dependencies
+npm ci
+
+# Start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Production Build & Deployment
 
-## Learn More
+```bash
+# Create production build
+npm run build
 
-To learn more about Next.js, take a look at the following resources:
+# Start production server
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Deployment Options
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Render**: Configured for Render Web Services via `render.yaml`. See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md).
+- **GitHub Pages**: Static export pipeline configured via `.github/workflows/deploy.yml`.
+- **Vercel & Netlify**: Pre-configured via `vercel.json` and `netlify.toml`.

@@ -662,7 +662,7 @@ export default function Home() {
 
           {/* Status Badge */}
           <div className="absolute top-6 right-[-10px] transform bg-black text-white font-[family-name:var(--font-space-mono)] text-[10px] uppercase tracking-widest px-4 py-1 border border-gray-800 shadow-[4px_4px_0_0_#FF007F] rotate-3 z-20">
-            ADVANCED ENGINE // 16:9 + QR
+            HH GOA 2026 EDITION
           </div>
 
           {/* Title Header */}
@@ -1066,7 +1066,7 @@ export default function Home() {
                 // 4 DAYS. AI x CRYPTO. MULTICHAIN.
               </p>
               <p>
-                1. <strong>LESS NOISE. MORE SIGNAL.</strong> We don't build vaporware or pitch decks. We build working software that pushes technology forward.
+                1. <strong>LESS NOISE. MORE SIGNAL.</strong> We don&apos;t build vaporware or pitch decks. We build working software that pushes technology forward.
               </p>
               <p>
                 2. <strong>FEARLESS WRITING & BUILDING.</strong> True innovation happens where brutal honesty meets relentless execution.
