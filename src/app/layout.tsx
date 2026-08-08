@@ -15,7 +15,21 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: "HH Goa 2026 - Identity Generator",
-  description: "Create your Hacker House Goa 2026 artifact.",
+  description: "Generate your official Hacker House Goa 2026 PFP Frame or Builder ID Card with interactive controls.",
+  authors: [{ name: "Hacker House Goa Team" }],
+  keywords: ["Hacker House Goa", "Identity Generator", "Solana", "AI", "Crypto", "PFP Frame", "Builder ID"],
+  openGraph: {
+    title: "HH Goa 2026 - Identity Generator",
+    description: "Generate your official Hacker House Goa 2026 PFP Frame or Builder ID Card with interactive controls.",
+    siteName: "Hacker House Goa 2026",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@247pmstudio",
+    title: "HH Goa 2026 - Identity Generator",
+    description: "Generate your official Hacker House Goa 2026 PFP Frame or Builder ID Card with interactive controls.",
+  },
 };
 
 export default function RootLayout({
