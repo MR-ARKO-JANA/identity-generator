@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 
+export const dynamic = "force-static";
+
 const TTL_MS = 72 * 60 * 60 * 1000;
 
 export async function GET() {

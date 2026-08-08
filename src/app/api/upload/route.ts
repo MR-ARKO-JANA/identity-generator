@@ -3,6 +3,8 @@ import { promises as fs } from "fs";
 import path from "path";
 import crypto from "crypto";
 
+export const dynamic = "force-static";
+
 const TTL_MS = 72 * 60 * 60 * 1000; // 72 Hours Time-to-Live
 
 async function purgeExpiredItems(dbPath: string, uploadsDir: string) {

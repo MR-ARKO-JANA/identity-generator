@@ -6,6 +6,17 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+export async function generateStaticParams() {
+  try {
+    const dbPath = path.join(process.cwd(), "db.json");
+    const dbContent = await fs.readFile(dbPath, "utf-8");
+    const db = JSON.parse(dbContent);
+    return Object.keys(db).map((id) => ({ id }));
+  } catch {
+    return [];
+  }
+}
+
 async function getBadgeData(id: string) {
   try {
     const dbPath = path.join(process.cwd(), "db.json");
